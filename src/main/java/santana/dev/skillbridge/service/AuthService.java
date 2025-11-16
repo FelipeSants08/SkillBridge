@@ -1,4 +1,4 @@
-package santana.dev.skillbridge.config;
+package santana.dev.skillbridge.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,7 +9,7 @@ import santana.dev.skillbridge.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
-public class AuthConfig implements UserDetailsService {
+public class AuthService implements UserDetailsService {
 
     private final UserRepository userRepository;
 

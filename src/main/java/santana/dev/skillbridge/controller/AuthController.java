@@ -18,6 +18,7 @@ import santana.dev.skillbridge.domain.dto.request.RegisterUserRequest;
 import santana.dev.skillbridge.domain.dto.response.LoginResponse;
 import santana.dev.skillbridge.domain.dto.response.RegisterUserResponse;
 import santana.dev.skillbridge.domain.model.User;
+import santana.dev.skillbridge.domain.model.UserRole;
 import santana.dev.skillbridge.repository.UserRepository;
 
 @RestController
@@ -47,6 +48,7 @@ public class AuthController {
         User newUser = new User();
         newUser.setName(request.nome());
         newUser.setEmail(request.email());
+        newUser.setRole(UserRole.USER);
         newUser.setPassword(passwordEncoder.encode(request.password()));
 
         userRepository.save(newUser);
