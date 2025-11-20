@@ -1,10 +1,18 @@
 package santana.dev.skillbridge.domain.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TrackStep {
 
     @Id
@@ -18,19 +26,20 @@ public class TrackStep {
 
     private String title;
 
+    private String estimatedTime;
+
     @Lob
     private String description;
 
-    private String resourceLink;
+    @ElementCollection
+    private List<String> links;
 
-    @Enumerated(EnumType.STRING)
-    private StepType stepType;
+    @ElementCollection
+    private List<String> resources;
+
 
     @Enumerated(EnumType.STRING)
     private StatusTrack status;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "skill_id")
-    private Skill targetSkill;
 }
