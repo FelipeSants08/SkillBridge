@@ -4,10 +4,8 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import santana.dev.skillbridge.domain.model.Skill;
 import santana.dev.skillbridge.domain.model.User;
 import santana.dev.skillbridge.domain.model.UserRole;
-import santana.dev.skillbridge.repository.SkillRepository;
 import santana.dev.skillbridge.repository.UserRepository;
 
 import java.util.List;
@@ -19,8 +17,6 @@ public class DataBaseSeeder {
     private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
-    private SkillRepository skillRepository;
 
     @PostConstruct
     public void init(){

@@ -6,8 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import santana.dev.skillbridge.domain.dto.JWTUserData;
 import santana.dev.skillbridge.domain.dto.request.UserExperienceRequest;
-import santana.dev.skillbridge.domain.dto.request.UserSkillDetails;
-import santana.dev.skillbridge.domain.dto.request.UserSkillsUpdateRequest;
+import santana.dev.skillbridge.domain.dto.request.UserSkillRequest;
 import santana.dev.skillbridge.domain.model.User;
 import santana.dev.skillbridge.service.UserService;
 
@@ -28,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping("/skils")
-    public ResponseEntity<Void> addSkillUser(@RequestBody UserSkillDetails request,
+    public ResponseEntity<Void> addSkillUser(@RequestBody UserSkillRequest request,
                                              @AuthenticationPrincipal JWTUserData principal) {
         service.addUserSkill(principal.userId(), request);
         return ResponseEntity.ok().build();
