@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import santana.dev.skillbridge.domain.dto.request.UserExperienceRequest;
 import santana.dev.skillbridge.domain.dto.request.UserSkillRequest;
+import santana.dev.skillbridge.domain.dto.response.UserResponse;
 import santana.dev.skillbridge.domain.model.User;
 import santana.dev.skillbridge.repository.UserRepository;
 
@@ -15,6 +16,7 @@ public class UserService {
 
 
     private final UserRepository userRepository;
+    private final LearningTrackService trackService;
 
     public void updateUserExperience(Long id, UserExperienceRequest user){
         User userToUpdate = userRepository.findById(id)
@@ -30,8 +32,9 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public List<User> findAllUser() {
-        return userRepository.findAll();
+    public UserResponse findUser(Long id) {
+        User user = findUserById(id);
+        return convertUser(user);
 
     }
 
@@ -40,6 +43,10 @@ public class UserService {
                 .orElseThrow(()->new RuntimeException("User not found"));
     }
 
+    public UserResponse convertUser(User user){
+        UserResponse response = new UserResponse(user.getId(), user.getName(),user.getEmail(), user.getJobGoal(), user.getExperienceSummary(), trackService.findAllUser(user));
+        return response;
+    }
 
 
 

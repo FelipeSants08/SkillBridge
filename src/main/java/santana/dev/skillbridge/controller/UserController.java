@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import santana.dev.skillbridge.domain.dto.JWTUserData;
 import santana.dev.skillbridge.domain.dto.request.UserExperienceRequest;
 import santana.dev.skillbridge.domain.dto.request.UserSkillRequest;
+import santana.dev.skillbridge.domain.dto.response.UserResponse;
 import santana.dev.skillbridge.domain.model.User;
 import santana.dev.skillbridge.service.UserService;
 
@@ -33,8 +34,8 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<User>> findAll(){
-        return ResponseEntity.ok(service.findAllUser());
+    @GetMapping("/my-user")
+    public ResponseEntity<UserResponse> findUser(@AuthenticationPrincipal JWTUserData principal) {
+        return ResponseEntity.ok(service.findUser(principal.userId()));
     }
 }

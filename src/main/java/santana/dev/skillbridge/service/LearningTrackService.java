@@ -18,6 +18,7 @@ public class LearningTrackService {
 
     private final LearningTrackRepository learningTrackRepository;
 
+    @Transactional
     public List<LearningTrackResponse> findAllUser(User user){
         var tracks = learningTrackRepository.findAll().stream().filter(l -> l.getUser().getId() == user.getId()).toList();
         return tracks.stream()
