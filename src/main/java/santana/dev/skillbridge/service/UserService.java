@@ -44,7 +44,7 @@ public class UserService {
     }
 
     public UserResponse convertUser(User user){
-        UserResponse response = new UserResponse(user.getId(), user.getName(),user.getEmail(), user.getJobGoal(), user.getExperienceSummary(), trackService.findAllUser(user));
+        UserResponse response = new UserResponse(user.getId(), user.getName(),user.getEmail(), user.getJobGoal(), user.getExperienceSummary(), user.getSkills(), trackService.findAllUser(user));
         return response;
     }
 

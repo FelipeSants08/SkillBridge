@@ -26,6 +26,9 @@ public class DataBaseSeeder {
                 .email("felipesantana@email.com")
                 .password(passwordEncoder.encode("123456"))
                 .role(UserRole.ADMIN)
+                .jobGoal("Desenvolvedor backend Java")
+                .experienceSummary("Assistente administrativo em multinacional")
+                .skills(List.of("Java", "Spring boot", "Docker"))
                 .build();
         var yasmin = User.builder()
                 .name("Yasmin")
