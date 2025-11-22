@@ -6,27 +6,25 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-variables:
-  projectName: 'skillbridge'
-  artifactName: 'java-app'
-
 steps:
+
+  - task: UseJavaVersion@1
+    inputs:
+      versionSpec: '21'
+      architecture: 'x64'
+      jdkSourceOption: 'PreInstalled'
 
   - task: Maven@4
     inputs:
       mavenPomFile: 'pom.xml'
       goals: 'clean package'
-      options: '-DskipTests=false'
-      publishJUnitResults: true
-      testResultsFiles: '**/surefire-reports/*.xml'
+      options: '-DskipTests=true'
 
-  - task: PublishTestResults@2
-    inputs:
-      testResultsFormat: 'JUnit'
-      testResultsFiles: '**/surefire-reports/*.xml'
+      publishJUnitResults: false
+
 
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(System.DefaultWorkingDirectory)/target'
-      ArtifactName: '$(artifactName)'
+      ArtifactName: 'java-app'
       publishLocation: 'Container'
