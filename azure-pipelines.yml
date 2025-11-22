@@ -8,28 +8,30 @@ pool:
 
 steps:
 
+  - task: JavaToolInstaller@0
+    displayName: 'Selecionar Java 21'
+    inputs:
+      versionSpec: '21'
+      jdkArchitectureOption: 'x64'
+      jdkSourceOption: 'PreInstalled'
 
   - script: |
-      echo ">>> Selecionando Java 21..."
-      sudo update-alternatives --set java /usr/lib/jvm/msopenjdk-21-amd64/bin/java
-      sudo update-alternatives --set javac /usr/lib/jvm/msopenjdk-21-amd64/bin/javac
+      echo ">>> Verificando versão do Java"
       java -version
-      javac -version
-    displayName: 'Configurar Java 21'
-
+      mvn -version
+    displayName: 'Verificar versões'
 
   - task: Maven@3
+    displayName: 'Build Maven'
     inputs:
       mavenPomFile: 'pom.xml'
       goals: 'clean package'
       options: '-DskipTests=true'
       publishJUnitResults: false
-    displayName: 'Build Maven'
-
 
   - task: PublishBuildArtifacts@1
+    displayName: 'Publicar Artefatos'
     inputs:
       PathtoPublish: '$(System.DefaultWorkingDirectory)/target'
       ArtifactName: 'java-app'
       publishLocation: 'Container'
-    displayName: 'Publicar Artefatos'
