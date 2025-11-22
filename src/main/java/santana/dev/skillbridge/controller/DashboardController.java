@@ -25,23 +25,26 @@ public class DashboardController {
     private final UserService userService;
     private final LearningTrackService trackService;
 
-    @GetMapping
-    public String ola(){
-        return "ola Projeto";
-    }
 
     @PostMapping
-    public ResponseEntity<LearningTrackResponse> generated(@AuthenticationPrincipal JWTUserData principal){
+    @ResponseStatus(HttpStatus.CREATED)
+    public LearningTrackResponse generated(@AuthenticationPrincipal JWTUserData principal){
         User user = userService.findUserById(principal.userId());
         LearningTrackResponse track = chatService.sendMessage(user);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(track);
+        return track;
     }
 
     @GetMapping("/learning")
-    public ResponseEntity<List<LearningTrackResponse>> findAllUser(@AuthenticationPrincipal JWTUserData principal){
+    @ResponseStatus(HttpStatus.OK)
+    public List<LearningTrackResponse> findAllUser(@AuthenticationPrincipal JWTUserData principal){
         User user = userService.findUserById(principal.userId());
-        return ResponseEntity.ok(trackService.findAllUser(user));
+        return trackService.findAllUser(user);
     }
 
+    @DeleteMapping("/learning")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteLearningUser(@AuthenticationPrincipal JWTUserData principal){
+        User user =  userService.findUserById(principal.userId());
+        trackService.deleteLearningTrack(user);
+    }
 }
