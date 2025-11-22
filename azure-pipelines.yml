@@ -8,21 +8,24 @@ pool:
 
 steps:
 
-  - task: UseJavaVersion@1
+  # Instalar Java 21 corretamente no pipeline
+  - task: UseJavaToolInstaller@0
     inputs:
       versionSpec: '21'
-      architecture: 'x64'
-      jdkSourceOption: 'PreInstalled'
+      jdkArchitectureOption: 'x64'
 
-  - task: Maven@4
+  # Build com Maven
+  - task: Maven@3
     inputs:
       mavenPomFile: 'pom.xml'
       goals: 'clean package'
       options: '-DskipTests=true'
-
       publishJUnitResults: false
+      javaHomeOption: 'JDKVersion'
+      jdkVersionOption: '1.21'
+      jdkArchitectureOption: 'x64'
 
-
+  # Publicar artefatos
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(System.DefaultWorkingDirectory)/target'
