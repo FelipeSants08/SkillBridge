@@ -8,26 +8,28 @@ pool:
 
 steps:
 
-  # Instalar Java 21 corretamente no pipeline
-  - task: UseJavaToolInstaller@0
-    inputs:
-      versionSpec: '21'
-      jdkArchitectureOption: 'x64'
 
-  # Build com Maven
+  - script: |
+      echo ">>> Selecionando Java 21..."
+      sudo update-alternatives --set java /usr/lib/jvm/msopenjdk-21-amd64/bin/java
+      sudo update-alternatives --set javac /usr/lib/jvm/msopenjdk-21-amd64/bin/javac
+      java -version
+      javac -version
+    displayName: 'Configurar Java 21'
+
+
   - task: Maven@3
     inputs:
       mavenPomFile: 'pom.xml'
       goals: 'clean package'
       options: '-DskipTests=true'
       publishJUnitResults: false
-      javaHomeOption: 'JDKVersion'
-      jdkVersionOption: '1.21'
-      jdkArchitectureOption: 'x64'
+    displayName: 'Build Maven'
 
-  # Publicar artefatos
+
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(System.DefaultWorkingDirectory)/target'
       ArtifactName: 'java-app'
       publishLocation: 'Container'
+    displayName: 'Publicar Artefatos'
