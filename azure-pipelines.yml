@@ -11,11 +11,6 @@ variables:
   artifactName: 'java-app'
 
 steps:
-  - task: JavaToolInstaller@0
-    inputs:
-      versionSpec: '21'
-      jdkArchitectureOption: 'x64'
-      jdkSourceOption: 'Microsoft'
 
   - task: Maven@4
     inputs:
