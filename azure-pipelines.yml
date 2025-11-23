@@ -17,7 +17,7 @@ variables:
   - name: IMAGE_NAME
     value: 'skillbridge-api'
   - name: RESOURCE_GROUP
-    value: 'SEU_RESOURCE_GROUP_AQUI'
+    value: 'skillbridge-group'
   - name: ACI_NAME
     value: 'skillbridge-aci'
   - name: AZURE_SUBSCRIPTION
