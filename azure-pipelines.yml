@@ -7,9 +7,21 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  - group: SkillBridge-ACR     # usa o grupo de variáveis do ACR
+  # grupo com dados do ACR
+  - group: SkillBridge-ACR
+
+  # grupo com secrets de banco + IA
+  - group: SkillBridge-Secrets
+
+  # variáveis próprias do pipeline
   - name: IMAGE_NAME
     value: 'skillbridge-api'
+  - name: RESOURCE_GROUP
+    value: 'SEU_RESOURCE_GROUP_AQUI'
+  - name: ACI_NAME
+    value: 'skillbridge-aci'
+  - name: AZURE_SUBSCRIPTION
+    value: '2TDSPG - RM558916 - Felipe Santana (72626558-6eba-4e9c-aa2e-817df57fdb3c)'  # nome exato da service connection
 
 steps:
   - task: JavaToolInstaller@0
@@ -34,6 +46,7 @@ steps:
       publishJUnitResults: true
       testResultsFiles: '**/surefire-reports/*.xml'
 
+  # ===== Docker build + push pro ACR =====
   - script: |
       echo ">>> Logando no ACR..."
       echo $(ACR_PASSWORD) | docker login $(ACR_LOGIN_SERVER) -u $(ACR_USERNAME) --password-stdin
@@ -56,3 +69,48 @@ steps:
       PathtoPublish: '$(System.DefaultWorkingDirectory)/target'
       ArtifactName: 'java-app'
       publishLocation: 'Container'
+
+  # ===== Deploy ACI via Azure CLI =====
+  - task: AzureCLI@2
+    displayName: 'Deploy ACI - SkillBridge'
+    inputs:
+      azureSubscription: '$(AZURE_SUBSCRIPTION)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        RESOURCE_GROUP="$(RESOURCE_GROUP)"
+        ACI_NAME="$(ACI_NAME)"
+
+        ACR_SERVER="$(ACR_LOGIN_SERVER)"
+        ACR_USER="$(ACR_USERNAME)"
+        ACR_PASS="$(ACR_PASSWORD)"
+
+        DB_URL="$(DB_URL)"
+        USER_DB="$(USER_DB)"
+        PASSWORD_DB="$(PASSWORD_DB)"
+        GROQ_API_KEY="$(GROQ_API_KEY)"
+
+        echo "Removendo container antigo (se existir)..."
+        az container delete \
+          -g "$RESOURCE_GROUP" \
+          -n "$ACI_NAME" \
+          --yes --no-wait 2>/dev/null || echo "Nenhum container anterior encontrado."
+
+        echo "Criando novo container no ACI..."
+        az container create \
+          -g "$RESOURCE_GROUP" \
+          -n "$ACI_NAME" \
+          --image "$ACR_SERVER/$(IMAGE_NAME):latest" \
+          --registry-login-server "$ACR_SERVER" \
+          --registry-username "$ACR_USER" \
+          --registry-password "$ACR_PASS" \
+          --ports 8080 \
+          --ip-address Public \
+          --os-type Linux \
+          --environment-variables \
+            DB_URL="$DB_URL" \
+            USER_DB="$USER_DB" \
+            PASSWORD_DB="$PASSWORD_DB" \
+            GROQ_API_KEY="$GROQ_API_KEY"
+
+        echo "Deploy solicitado. Verifique o status no portal Azure > Container Instances."
