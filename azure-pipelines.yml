@@ -20,8 +20,6 @@ variables:
     value: 'skillbridge-group'
   - name: ACI_NAME
     value: 'skillbridge-aci'
-  - name: AZURE_SUBSCRIPTION
-    value: '2TDSPG - RM558916 - Felipe Santana (72626558-6eba-4e9c-aa2e-817df57fdb3c)'  # nome exato da service connection
 
 steps:
   - task: JavaToolInstaller@0
@@ -74,7 +72,7 @@ steps:
   - task: AzureCLI@2
     displayName: 'Deploy ACI - SkillBridge'
     inputs:
-      azureSubscription: '$(AZURE_SUBSCRIPTION)'
+      azureSubscription: '2TDSPG - RM558916 - Felipe Santana (72626558-6eba-4e9c-aa2e-817df57fdb30)'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
