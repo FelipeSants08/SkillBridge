@@ -3,6 +3,7 @@ package santana.dev.skillbridge.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import santana.dev.skillbridge.domain.dto.request.StatusTrackRequest;
 import santana.dev.skillbridge.domain.dto.response.LearningTrackResponse;
 import santana.dev.skillbridge.domain.dto.response.TrackStepResponse;
 import santana.dev.skillbridge.domain.model.LearningTrack;
@@ -24,6 +25,11 @@ public class LearningTrackService {
         return tracks.stream()
                 .map(this::convertToResponse)
                 .toList();
+    }
+
+
+    public void alterStatus(Long id, StatusTrackRequest request){
+
     }
 
     @Transactional
@@ -63,6 +69,10 @@ public class LearningTrackService {
                 track.getTargetJobGoal(),
                 stepResponses
         );
+    }
+
+    public void deleteLearningTrack(User user){
+        learningTrackRepository.deleteByUser(user);
     }
 
 

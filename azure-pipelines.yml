@@ -1,0 +1,114 @@
+trigger:
+  branches:
+    include:
+      - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  # grupo com dados do ACR
+  - group: SkillBridge-ACR
+
+  # grupo com secrets de banco + IA
+  - group: SkillBridge-Secrets
+
+  # variáveis próprias do pipeline
+  - name: IMAGE_NAME
+    value: 'skillbridge-api'
+  - name: RESOURCE_GROUP
+    value: 'skillbridge-group'
+  - name: ACI_NAME
+    value: 'skillbridge-aci'
+
+steps:
+  - task: JavaToolInstaller@0
+    displayName: 'Selecionar Java 21'
+    inputs:
+      versionSpec: '21'
+      jdkArchitectureOption: 'x64'
+      jdkSourceOption: 'PreInstalled'
+
+  - script: |
+      echo ">>> Verificando versões"
+      java -version
+      mvn -version
+    displayName: 'Verificar versões'
+
+  - task: Maven@3
+    displayName: 'Build Maven'
+    inputs:
+      mavenPomFile: 'pom.xml'
+      goals: 'clean package'
+      options: '-DskipTests=true'
+      publishJUnitResults: true
+      testResultsFiles: '**/surefire-reports/*.xml'
+
+  # ===== Docker build + push pro ACR =====
+  - script: |
+      echo ">>> Logando no ACR..."
+      echo $(ACR_PASSWORD) | docker login $(ACR_LOGIN_SERVER) -u $(ACR_USERNAME) --password-stdin
+      
+      echo ">>> Buildando imagem..."
+      docker build -t $(ACR_LOGIN_SERVER)/$(IMAGE_NAME):$(Build.BuildId) .
+
+      echo ">>> Criando tag 'latest'..."
+      docker tag $(ACR_LOGIN_SERVER)/$(IMAGE_NAME):$(Build.BuildId) \
+                  $(ACR_LOGIN_SERVER)/$(IMAGE_NAME):latest
+
+      echo ">>> Enviando imagens para o ACR..."
+      docker push $(ACR_LOGIN_SERVER)/$(IMAGE_NAME):$(Build.BuildId)
+      docker push $(ACR_LOGIN_SERVER)/$(IMAGE_NAME):latest
+    displayName: 'Build e Push Docker para ACR'
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publicar Artefatos'
+    inputs:
+      PathtoPublish: '$(System.DefaultWorkingDirectory)/target'
+      ArtifactName: 'java-app'
+      publishLocation: 'Container'
+
+  # ===== Deploy ACI via Azure CLI =====
+  - task: AzureCLI@2
+    displayName: 'Deploy ACI - SkillBridge'
+    inputs:
+      azureSubscription: '2TDSPG - RM558916 - Felipe Santana (72626558-6eba-4e9c-aa2e-817df57fdb30)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        RESOURCE_GROUP="$(RESOURCE_GROUP)"
+        ACI_NAME="$(ACI_NAME)"
+
+        ACR_SERVER="$(ACR_LOGIN_SERVER)"
+        ACR_USER="$(ACR_USERNAME)"
+        ACR_PASS="$(ACR_PASSWORD)"
+
+        DB_URL="$(DB_URL)"
+        USER_DB="$(USER_DB)"
+        PASSWORD_DB="$(PASSWORD_DB)"
+        GROQ_API_KEY="$(GROQ_API_KEY)"
+
+        echo "Removendo container antigo (se existir)..."
+        az container delete \
+          -g "$RESOURCE_GROUP" \
+          -n "$ACI_NAME" \
+          --yes --no-wait 2>/dev/null || echo "Nenhum container anterior encontrado."
+
+        echo "Criando novo container no ACI..."
+        az container create \
+          -g "$RESOURCE_GROUP" \
+          -n "$ACI_NAME" \
+          --image "$ACR_SERVER/$(IMAGE_NAME):latest" \
+          --registry-login-server "$ACR_SERVER" \
+          --registry-username "$ACR_USER" \
+          --registry-password "$ACR_PASS" \
+          --ports 8080 \
+          --ip-address Public \
+          --os-type Linux \
+          --environment-variables \
+            DB_URL="$DB_URL" \
+            USER_DB="$USER_DB" \
+            PASSWORD_DB="$PASSWORD_DB" \
+            GROQ_API_KEY="$GROQ_API_KEY"
+
+        echo "Deploy solicitado. Verifique o status no portal Azure > Container Instances."
