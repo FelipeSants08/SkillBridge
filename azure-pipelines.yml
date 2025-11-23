@@ -6,8 +6,12 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-steps:
+variables:
+  - group: SkillBridge-ACR     # usa o grupo de variáveis do ACR
+  - name: IMAGE_NAME
+    value: 'skillbridge-api'
 
+steps:
   - task: JavaToolInstaller@0
     displayName: 'Selecionar Java 21'
     inputs:
@@ -16,7 +20,7 @@ steps:
       jdkSourceOption: 'PreInstalled'
 
   - script: |
-      echo ">>> Verificando versão do Java"
+      echo ">>> Verificando versões"
       java -version
       mvn -version
     displayName: 'Verificar versões'
@@ -27,7 +31,24 @@ steps:
       mavenPomFile: 'pom.xml'
       goals: 'clean package'
       options: '-DskipTests=true'
-      publishJUnitResults: false
+      publishJUnitResults: true
+      testResultsFiles: '**/surefire-reports/*.xml'
+
+  - script: |
+      echo ">>> Logando no ACR..."
+      echo $(ACR_PASSWORD) | docker login $(ACR_LOGIN_SERVER) -u $(ACR_USERNAME) --password-stdin
+      
+      echo ">>> Buildando imagem..."
+      docker build -t $(ACR_LOGIN_SERVER)/$(IMAGE_NAME):$(Build.BuildId) .
+
+      echo ">>> Criando tag 'latest'..."
+      docker tag $(ACR_LOGIN_SERVER)/$(IMAGE_NAME):$(Build.BuildId) \
+                  $(ACR_LOGIN_SERVER)/$(IMAGE_NAME):latest
+
+      echo ">>> Enviando imagens para o ACR..."
+      docker push $(ACR_LOGIN_SERVER)/$(IMAGE_NAME):$(Build.BuildId)
+      docker push $(ACR_LOGIN_SERVER)/$(IMAGE_NAME):latest
+    displayName: 'Build e Push Docker para ACR'
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publicar Artefatos'
