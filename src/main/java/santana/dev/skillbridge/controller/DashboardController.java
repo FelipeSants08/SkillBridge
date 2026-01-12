@@ -8,10 +8,12 @@ import org.springframework.web.bind.annotation.*;
 import santana.dev.skillbridge.domain.dto.JWTUserData;
 import santana.dev.skillbridge.domain.dto.response.LearningTrackResponse;
 import santana.dev.skillbridge.domain.model.LearningTrack;
+import santana.dev.skillbridge.domain.model.TrackStep;
 import santana.dev.skillbridge.domain.model.User;
 import santana.dev.skillbridge.repository.LearningTrackRepository;
 import santana.dev.skillbridge.service.ChatService;
 import santana.dev.skillbridge.service.LearningTrackService;
+import santana.dev.skillbridge.service.TrackStepService;
 import santana.dev.skillbridge.service.UserService;
 
 import java.util.List;
@@ -24,6 +26,7 @@ public class DashboardController {
     private final ChatService chatService;
     private final UserService userService;
     private final LearningTrackService trackService;
+    private final TrackStepService  trackStepService;
 
 
     @PostMapping
@@ -43,8 +46,8 @@ public class DashboardController {
 
     @DeleteMapping("/learning")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteLearningUser(@AuthenticationPrincipal JWTUserData principal){
-        User user =  userService.findUserById(principal.userId());
+    public void deleteLearningUser(@AuthenticationPrincipal JWTUserData principal) {
+        User user = userService.findUserById(principal.userId());
         trackService.deleteLearningTrack(user);
     }
 }

@@ -28,28 +28,18 @@ public class LearningTrackService {
     }
 
 
-    public void alterStatus(Long id, StatusTrackRequest request){
-
-    }
-
     @Transactional
     public LearningTrack convertLearningTrack(LearningTrackResponse response, User user) {
-        learningTrackRepository.deleteByUser(user);
+        learningTrackRepository.findAll().stream().forEach(l -> l.setActive(false));
         LearningTrack track = new LearningTrack();
         track.setTargetJobGoal(response.targetJobGoal());
         List<TrackStep> steps = response.trackSteps().stream().map(stepDto ->{
-            TrackStep step = new TrackStep();
-            step.setTitle(stepDto.title());
-            step.setEstimatedTime(stepDto.estimatedTime());
-            step.setDescription(stepDto.description());
-            step.setLinks(stepDto.links());
-            step.setResources(stepDto.resources());
-            step.setStatus(stepDto.status());
-            step.setLearningTrack(track);
+            TrackStep step = new TrackStep(stepDto, track);
             return step;
         }).toList();
         track.setUser(user);
         track.setTrackSteps(steps);
+        track.setActive(true);
         return learningTrackRepository.save(track);
     }
 
@@ -71,6 +61,7 @@ public class LearningTrackService {
         );
     }
 
+    @Transactional
     public void deleteLearningTrack(User user){
         learningTrackRepository.deleteByUser(user);
     }

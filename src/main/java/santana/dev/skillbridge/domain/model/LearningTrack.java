@@ -21,15 +21,17 @@ public class LearningTrack {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Qual usuário pertence a esta trilha
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // O objetivo de carreira que gerou esta trilha
+
     private String targetJobGoal;
 
-    // Relacionamento com os passos da trilha
+
     @OneToMany(mappedBy = "learningTrack", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TrackStep> trackSteps;
+
+    private Boolean active;
 }

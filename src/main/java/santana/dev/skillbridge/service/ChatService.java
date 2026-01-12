@@ -98,7 +98,7 @@ public class ChatService {
             Retorne SOMENTE o JSON no formato exato do modelo.
             """.formatted(user.getJobGoal(), user.getExperienceSummary(), user.getSkills());
 
-        // Mapeia a resposta diretamente para o record que corresponde ao JSON do modelo
+
         GeneratedLearningTrack generated = chatClient.prompt()
                 .user(prompt)
                 .call()

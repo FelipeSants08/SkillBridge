@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import santana.dev.skillbridge.domain.dto.response.TrackStepResponse;
 
 import java.util.List;
 
@@ -40,6 +41,16 @@ public class TrackStep {
 
     @Enumerated(EnumType.STRING)
     private StatusTrack status;
+
+    public TrackStep(TrackStepResponse response, LearningTrack track){
+        this.learningTrack = track;
+        this.title = response.title();
+        this.estimatedTime = response.estimatedTime();
+        this.description = response.description();
+        this.links = response.links();
+        this.resources = response.resources();
+        this.status = response.status();
+    }
 
 
 }
