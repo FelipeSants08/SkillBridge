@@ -1,191 +1,229 @@
-📘 SkillBridge – Plataforma Inteligente de Trilha de Aprendizado com IA
+# 🚀 SkillBridge – Plataforma Inteligente de Trilhas de Aprendizado com IA
 
-O SkillBridge é uma aplicação moderna desenvolvida em Java + Spring Boot que usa Inteligência Artificial (via Spring AI) para criar trilhas de aprendizado personalizadas com base no perfil real de cada usuário.
+O **SkillBridge** é uma API REST desenvolvida em **Java com Spring Boot** que utiliza **Inteligência Artificial** para gerar **trilhas de aprendizado personalizadas**, focadas em preparar usuários para o **mercado de trabalho real**.
 
-A plataforma analisa:
+A aplicação analisa o perfil técnico e profissional do usuário e cria **Learning Tracks inteligentes**, adaptadas ao nível de conhecimento, experiência prévia e objetivo de carreira.
 
-✔️ Skills que o usuário já domina
-✔️ Experiência profissional atual
-✔️ Objetivo profissional desejado
-✔️ Nível de maturidade técnica
-✔️ Lacunas técnicas que ele precisa desenvolver
+> 🎯 O foco do projeto é aplicar **boas práticas de backend**, **arquitetura limpa**, **segurança**, **persistência de dados** e **integração real com IA**, simulando um cenário de produto profissional.
 
-Com esses dados, a IA gera automaticamente uma Learning Track, contendo:
+---
 
-Passos ordenados de aprendizado
+## 🧠 O que o SkillBridge faz?
 
-Descrições claras
+A plataforma analisa automaticamente:
 
-Tempo estimado
+* Objetivo profissional do usuário
+* Experiência prévia
+* Skills já dominadas
+* Lacunas técnicas relevantes
+* Nível estimado (iniciante / júnior / pleno)
 
-Recursos recomendados (vídeos, livros, documentações, cursos)
+Com base nisso, a IA gera uma **trilha de aprendizado completa**, contendo:
 
-Links úteis
+* 📌 Passos ordenados de aprendizado
+* ⏱️ Tempo estimado por etapa
+* 📝 Descrição clara do porquê cada passo é importante
+* 🔗 Links úteis e atuais
+* 📚 Recursos recomendados (documentação, cursos, livros)
+* 📊 Status de progresso
 
-Status de progresso
+Tudo isso é salvo no banco e associado ao usuário autenticado.
 
-O resultado é uma trilha personalizada, atualizada com o que o mercado realmente exige para aquela carreira.
+---
 
-🚀 Tecnologias Utilizadas
-Backend
+## 🏗️ Arquitetura da Aplicação
 
-Java 17
+A aplicação segue uma arquitetura em camadas bem definida:
 
-Spring Boot 3
+```
+Controller → Service → Spring AI → Repository → PostgreSQL
+```
 
-Spring Web
+### Principais responsabilidades:
 
-Spring Security + JWT
+* **Controllers**: Exposição de endpoints REST
+* **Services**: Regras de negócio
+* **Spring AI**: Comunicação com LLMs para geração das trilhas
+* **Repositories (JPA)**: Persistência de dados
+* **Security**: Autenticação e autorização com JWT
 
-Spring Data JPA
+---
 
-Spring AI
+## 🧩 Principais Entidades
 
-Maven
+* **User** – Usuário da plataforma
+* **Skill** – Skills associadas ao usuário
+* **LearningTrack** – Trilha de aprendizado gerada pela IA
+* **TrackStep** – Etapas da trilha
 
-Integração com IA
+### Relacionamentos:
 
-Spring AI Client
+* Um usuário pode possuir várias **Learning Tracks**
+* Uma **Learning Track** possui vários **Track Steps**
+* Apenas uma trilha pode estar ativa por vez
 
-Modelos LLM (Groq, OpenAI, etc.)
+---
 
-Prompts avançados com estruturação de JSON
+## 🤖 Integração com Inteligência Artificial
 
-Banco de Dados
+A geração da trilha acontece da seguinte forma:
 
-Oracle DB ou MySQL
+1. O usuário autenticado solicita uma trilha
+2. O backend coleta:
 
-Containerização
+   * Objetivo profissional
+   * Experiência
+   * Skills cadastradas
+3. Um **prompt altamente estruturado** é criado
+4. O prompt é enviado para o LLM via **Spring AI**
+5. A IA retorna um **JSON estruturado**
+6. O backend converte o JSON em entidades JPA
+7. A trilha é persistida no banco e retornada ao usuário
 
-Docker
+### Exemplo de retorno da IA:
 
-Docker Compose
-
-🧠 Como funciona a geração da Learning Track
-
-Quando o usuário solicita uma trilha:
-
-O SkillBridge coleta os dados do usuário logado:
-
-Nome
-
-Skills cadastradas
-
-Experiência profissional
-
-Objetivo desejado
-
-Cria um prompt altamente estruturado para a IA.
-
-Envia o prompt para a API do LLM via Spring AI.
-
-A IA responde com um JSON estruturado contendo:
-
+```json
 {
-  "targetJobGoal": "string",
+  "targetJobGoal": "Backend Java Developer",
   "trackSteps": [
     {
-      "title": "string",
-      "estimatedTime": "string",
-      "description": "string",
-      "links": ["string"],
-      "resources": ["string"],
+      "title": "Spring Boot Avançado",
+      "estimatedTime": "2 semanas",
+      "description": "Aprofundar em boas práticas e arquitetura",
+      "links": ["https://spring.io"],
+      "resources": ["Documentação oficial"],
       "status": "PENDING"
     }
   ]
 }
+```
 
+---
 
-O backend converte essa resposta em entidades JPA (LearningTrack e TrackStep) e salva no banco.
+## 🔐 Autenticação e Segurança
 
-O usuário visualiza sua trilha completa.
+O projeto utiliza:
 
-🏗️ Arquitetura da Aplicação
-Controller → Service → Spring AI → Repository → Oracle DB
+* **Spring Security**
+* **JWT (JSON Web Token)**
+* Rotas protegidas por autenticação
+* Controle de acesso por usuário autenticado
 
-Principais entidades
+### Endpoints de autenticação:
 
-User
+* `POST /auth/register`
+* `POST /auth/login`
 
-LearningTrack
+---
 
-TrackStep
+## 📡 Principais Endpoints
 
-Skill
+### Usuário
 
-A relação é:
+* `PUT /user/experience` – Atualiza experiência profissional
+* `POST /user/skills` – Adiciona skills ao usuário
+* `GET /user/my-user` – Retorna dados do usuário logado
 
-Um usuário possui múltiplas Learning Tracks
+### IA / Learning Track
 
-Uma Learning Track possui vários Track Steps
+* `POST /ia` – Gera uma nova trilha de aprendizado
+* `GET /ia/learning` – Lista trilhas do usuário
+* `DELETE /ia/learning` – Remove trilhas do usuário
 
-💻 Como rodar o projeto localmente
-1. Clone o repositório
-git clone https://github.com/seu-usuario/skillbridge.git
-cd skillbridge
+---
 
-2. Configure variáveis de ambiente
+## 🛠️ Tecnologias Utilizadas
 
-Crie um arquivo .env com:
+### Backend
 
-SPRING_AI_API_KEY=your_key
-DB_USER=your_user
-DB_PASS=your_pass
+* Java 17
+* Spring Boot 3
+* Spring Web
+* Spring Security + JWT
+* Spring Data JPA
+* Spring AI
+* Maven
 
-3. Suba o banco (Docker)
+### Banco de Dados
+
+* PostgreSQL
+
+### Infraestrutura
+
+* Docker
+* Docker Compose
+* Azure Pipelines (CI/CD)
+
+---
+
+## ▶️ Como rodar o projeto localmente
+
+### Pré-requisitos
+
+* Java 17+
+* Docker e Docker Compose
+* Maven
+
+### Passos
+
+```bash
+# Clone o repositório
+git clone https://github.com/FelipeSants08/SkillBridge.git
+cd SkillBridge
+
+# Suba o banco de dados
 docker compose up -d
 
-4. Rode o projeto
+# Rode a aplicação
 mvn spring-boot:run
+```
 
-🔐 Autenticação e Segurança
+### Variáveis de ambiente
 
-O sistema utiliza:
+Crie um arquivo `.env`:
 
-JWT
+```env
+SPRING_AI_API_KEY=your_api_key
+DB_USER=postgres
+DB_PASS=postgres
+```
 
-Spring Security
+---
 
-Rotas protegidas
+## 🧪 Swagger / Teste Online
 
-Controle de permissões do usuário
+📎 **Swagger UI:**
+[http://20.226.241.237:8080/swagger-ui/index.html](http://20.226.241.237:8080/swagger-ui/index.html)
 
-🎯 Objetivo do Projeto
+### Usuário de teste
 
-O SkillBridge foi criado para:
-
-✔ Ajudar pessoas a encontrarem o caminho certo na área desejada
-✔ Oferecer trilhas realistas baseadas em padrões de mercado
-✔ Otimizar esforços de estudo
-✔ Ajudar iniciantes, juniores e profissionais em transição de carreira
-✔ Servir como assistente pessoal de desenvolvimento profissional
-
-📈 Exemplo de Learning Track gerada
-
-(resumo)
-
-Java Avançado
-
-Spring Boot
-
-JPA & Bancos de Dados
-
-JWT
-
-APIs REST
-
-Microsserviços
-
-Docker & Deploy em Cloud
-
-Preparação para Entrevistas
-
-TESTE ONLINE
-
-http://20.226.241.237:8080/swagger-ui/index.html#/
-
-Login:
+```json
 {
   "email": "felipesantana@email.com",
   "password": "123456"
 }
+```
+
+---
+
+## 🎯 Objetivo do Projeto
+
+O SkillBridge foi desenvolvido para:
+
+* ✔️ Ajudar pessoas a entrarem na área de tecnologia
+* ✔️ Criar trilhas realistas baseadas no mercado
+* ✔️ Aplicar conceitos avançados de backend
+* ✔️ Demonstrar integração real com IA
+* ✔️ Servir como projeto de portfólio profissional
+
+---
+
+## 👨‍💻 Autor
+
+**Felipe Santana**
+Desenvolvedor Backend Java
+📌 Foco em Spring Boot, APIs REST, Arquitetura Limpa e IA aplicada
+
+---
+
+⭐ Se este projeto te ajudou ou chamou sua atenção, considere deixar uma estrela!
